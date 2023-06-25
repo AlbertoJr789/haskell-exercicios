@@ -1,3 +1,5 @@
+import Data.Char (isDigit)
+
 calcS :: Float->Float->Float->Float
 calcS a b c = (a + b + c)/2
 
@@ -147,5 +149,113 @@ nomesComN :: Char -> [String] -> [String]
 nomesComN c nomes = [nome | nome <- nomes, comecaCom c nome] 
 
 --funções de alta ordem
-tamanhoStrings:: [String] -> (a -> a) -> [Int]
-tamanhoStrings (h:xs) f x = [(f x)] : tamanhoStrings xs
+
+-- app :: (a->b) -> (a,a) -> (b,b)
+-- app f (x,y) = (f x, f y)
+-- > app chr (65, 70)
+-- ('A','F’)
+-- > app tan (65, 70)
+-- (-1.4700382576,1.22195991813)
+
+tamanhoStrings:: [String] -> (String -> Int) -> [(String,Int)]
+tamanhoStrings [] _ = [("",0)]
+tamanhoStrings strings f = [(x, f x) | x <- strings]
+
+tamString :: String -> Int
+tamString [] = 0
+tamString (h:hs) = tamString hs + 1
+
+--Generalizando filtro de uma lista
+takeWhilem :: (a -> Bool) -> [a] -> [a]
+takeWhilem _ [] = []
+takeWhilem f (p:ps) | (f p) = p: takeWhilem f ps
+                   | otherwise = takeWhilem f ps
+
+-- esse filtro que tem que passar como (menorQue 6), por exemplo
+menorQue :: Float -> Float -> Bool
+menorQue n x | x < n = True
+             | otherwise = False
+
+-- Expressao lambda
+sucessor x = (\x -> x + 1) x
+dobro = \x -> x+x
+cauda = \(_:c) -> c
+
+-- Pegando a media dos alunos com função lambda
+-- listaAlunos :: Curso
+-- listaAlunos = [(1234, "Jose Azevedo", 13.2), (2345, "Carlos Silva", 9.7),(3456,
+-- "Rosa Mota", 17.9)]
+-- mediaDasNotas :: Curso->Float
+-- mediaDasNotas lista = (/) (sum (map (\(_,_,n)->n) lista)) (fromIntegral (length
+-- lista))
+
+-- aplica uma certa funcao duas vezes
+duasVezes :: (a -> a) -> a -> a
+duasVezes f x = f (f x)
+
+-- itera uma lista e aplica a funcao de aplicar duas vezes na lista
+aplicarDuasVezes :: (a -> a) -> [a] -> [a]
+aplicarDuasVezes f xs = map (duasVezes f) xs
+
+-- chama a funcao que aplica duas vezes alguma funcao na lista
+resultadoAltaOrdem :: [Int] -> [Int]
+resultadoAltaOrdem lista = aplicarDuasVezes sucessor lista
+
+
+produtoLista :: Num a => [a] -> a
+produtoLista = foldr (*) 1
+
+tamanhoLista :: Num a => [a] -> a
+tamanhoLista = foldr (\_ n -> 1+n) 0
+
+-- Retorna uma tupla com o indice do elemento e seu valor
+zipar :: Num a => [a] -> [(Int,a)]
+zipar ls = [(i,x)| (i,x) <- zip [0..n] ls]
+            where 
+                n = length ls - 1
+
+subtrairAntecessor:: Int -> Float
+subtrairAntecessor x = fromIntegral (x - (x-1))
+
+--[0,1,4,9] -> [0.0,1.0,2.0,3.0]
+converte1 :: [Int] -> [Float]
+converte1 ls = map (\(x,_) -> fromIntegral x) (zipar ls)
+
+--"HAL" -> "IBM"
+converte2 :: String -> String
+converte2 ls = map (\c -> succ c) ls
+
+--["bom","dia","turma"] -> "bdt"
+converte3 :: [String] -> String
+converte3 ls = map (\(c:_) -> c) ls
+
+--["ciência", "da", "computação"] -> [7,2,10]
+converte4 :: [String] -> [Int]
+converte4 ls = map(\x -> length x) ls
+
+type Livro = String
+type Database = [(Pessoa,[Livro])]
+
+dataBase :: Database
+dataBase = [(("Jorgin",18,75,"Futebol"),["L1","L2","L3"]),(("Mafalda",28,75,"Halterofilismo"),["L4","L5","L6","L1"]),(("cuzin",12,55,"Natação"),["L7","L8","L9"]),(("peludin",33,95,"Powerlifting"),["L10","L11","L12","L1"])]
+                
+
+emprestadosPorPessoa :: Database -> Pessoa -> [Livro]
+emprestadosPorPessoa db pessoa = concatMap (\(p,livros) -> if p == pessoa then livros else []) db
+
+emprestadosPorLivro :: Database -> Livro -> [Pessoa]
+emprestadosPorLivro db livro = [pessoa | (pessoa,livros) <- db, livro `elem` livros]
+
+estaEmprestado :: Database -> Livro -> Bool
+estaEmprestado db livro = if True `elem` map (\(pessoa,livros) -> if livro `elem` livros then True else False) db then True else False
+
+emprestimoPorPessoa:: Database -> Pessoa -> Int
+emprestimoPorPessoa db pessoa = length (concatMap (\(p,livros) -> if pessoa == p then livros else []) db) 
+
+procurarPessoa :: Database -> Pessoa -> Maybe (Pessoa,Int)
+procurarPessoa db pessoa = case result of 
+                                [] -> Nothing
+                                (p,livros):_ -> Just(p,length livros)
+                           where
+                             result = [(p,livros) | (p,livros) <- db,p == pessoa]
+
