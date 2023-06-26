@@ -259,3 +259,60 @@ procurarPessoa db pessoa = case result of
                            where
                              result = [(p,livros) | (p,livros) <- db,p == pessoa]
 
+-- IO
+main :: IO()
+main = do putStrLn ("Qual o seu nome? ")
+          nome <- getLine
+          putStrLn ("Qual sua matricula ?")
+          mart <- getLine
+          putStrLn ("Bem-vindo " ++ nome ++ " matricula " ++ mart)
+
+
+calcular :: IO()
+calcular = do putStr "Digite um numero: "
+              n <- getLine
+              let x = ((read n)::Double)
+                  s = sin x
+                  c = cos x
+              putStr ("O seno de "++n++" e' "++(show s)++['.','\n']++
+                      "O cosseno de "++n++" e' "++(show c)++['.','\n'])
+
+
+-- Ordenar uma lista
+sort [] = []
+sort (a:b) = sort [x | x <- b, x<a]
+             ++ [a] ++
+             sort [x | x <- b, x>= a]
+
+--Exercicio 8
+
+palavraNaoTemNum :: String -> Bool
+palavraNaoTemNum [] = True
+palavraNaoTemNum (x:xs) | isDigit x = False
+                        | otherwise = palavraNaoTemNum xs
+
+
+inverterPalavra :: String -> String
+inverterPalavra [] = []
+inverterPalavra (x:xs) = (inverterPalavra xs) ++ [x]
+
+contemApenasCaracteres :: IO()
+contemApenasCaracteres = do putStr ("Digite uma palavra: ")
+                            palavra <- getLine
+                            if palavraNaoTemNum palavra then putStrLn (inverterPalavra palavra)
+                            else error "Palavra tem caractere numerico"
+
+pegaNumeTelefone:: IO()
+pegaNumeTelefone = do putStr ("Digite seu nome: ")
+                      nome <- getLine
+                      putStr ("Digite seu telefone: ")
+                      telefone <- getLine
+                      putStrLn("Nome:  " ++ nome ++ ", telefone: " ++ telefone)
+
+
+leLinhaAteVirVazio :: IO()
+leLinhaAteVirVazio = do putStr ("Digite uma palavra, ou, para sair, digite nada e de enter: ")
+                        palavra <- getLine
+                        if palavra /= "" then palavras = leLinhaAteVirVazio
+                        else
+                            putStrLn ()
