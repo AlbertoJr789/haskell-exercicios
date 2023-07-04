@@ -136,6 +136,7 @@ type Aluno = (Codigo,Nota,NomeA)
 
 baseDeDadosAlunos :: [Aluno]
 baseDeDadosAlunos = [("1224-5",18.5,"José"),("1226-5",6.5,"Alfredo"),("1264-5",1.5,"Gabriela"),("1124-2",17.5,"Joaquim")]
+
 notasAcimaDeOito :: [Codigo]
 notasAcimaDeOito = [cod | (cod,nota,_) <- baseDeDadosAlunos, nota > 8]
 
@@ -174,6 +175,10 @@ takeWhilem f (p:ps) | (f p) = p: takeWhilem f ps
 -- esse filtro que tem que passar como (menorQue 6), por exemplo
 menorQue :: Float -> Float -> Bool
 menorQue n x | x < n = True
+             | otherwise = False
+
+maiorQue :: Float -> Float -> Bool
+maiorQue n x | x > n = True
              | otherwise = False
 
 -- Expressao lambda
@@ -310,9 +315,41 @@ pegaNumeTelefone = do putStr ("Digite seu nome: ")
                       putStrLn("Nome:  " ++ nome ++ ", telefone: " ++ telefone)
 
 
-leLinhaAteVirVazio :: IO()
-leLinhaAteVirVazio = do putStr ("Digite uma palavra, ou, para sair, digite nada e de enter: ")
-                        palavra <- getLine
-                        if palavra /= "" then palavras = leLinhaAteVirVazio
-                        else
-                            putStrLn ()
+-- leLinhaAteVirVazio :: IO()
+-- leLinhaAteVirVazio = do putStr ("Digite uma palavra, ou, para sair, digite nada e de enter: ")
+--                         palavra <- getLine
+--                         if palavra /= "" then palavras = leLinhaAteVirVazio
+--                         else
+--                             putStrLn ()
+
+-- "abcdef"  "e" [] => "abcd" "e" "f"
+dividirStringLetra :: String -> Char -> [String]
+dividirStringLetra string@(h:t) letra = [stringAntesDe string letra] ++ [[letra]] ++ [stringDepoisDe string letra]
+
+stringAntesDe :: String -> Char -> String
+stringAntesDe [] _ = []
+stringAntesDe (h:t) letra | h == letra = []
+                          | otherwise = [h] ++ stringAntesDe t letra
+
+stringDepoisDe :: String -> Char -> String
+stringDepoisDe [] _ = []
+stringDepoisDe (h:t) letra | h == letra = t 
+                           | otherwise = stringDepoisDe t letra
+
+palindromo :: String -> Bool
+palindromo string | string == inversoLista string = True
+                  | otherwise = False
+
+type Matriz = [[Int]]
+
+matriz :: Matriz
+matriz = [[1,2,3],[4,5,6],[7,8,9]]
+
+stringsTamanho :: [String] -> [(String,Int)]
+stringsTamanho string = [(str,tamanhoString str) | str <- string]
+
+tamanhoString :: String -> Int
+tamanhoString [] = 0
+tamanhoString (x:xs) = tamanhoString xs + 1 
+
+henrique elementos = [(pos,x) | x <- elementos, pos <- [0..(length elementos)]]
